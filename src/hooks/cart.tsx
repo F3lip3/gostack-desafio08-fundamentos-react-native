@@ -44,7 +44,16 @@ const CartProvider: React.FC = ({ children }) => {
   }, [products.length]);
 
   useEffect(() => {
-    AsyncStorage.setItem('@GoMarketPlace:products', JSON.stringify(products));
+    let newProducts = [...products];
+    if (newProducts.some(x => x.quantity === 0)) {
+      newProducts = newProducts.filter(x => x.quantity > 0);
+      setProducts(newProducts);
+    }
+
+    AsyncStorage.setItem(
+      '@GoMarketPlace:products',
+      JSON.stringify(newProducts),
+    );
   }, [products]);
 
   const addToCart = useCallback(async (product: Product) => {
