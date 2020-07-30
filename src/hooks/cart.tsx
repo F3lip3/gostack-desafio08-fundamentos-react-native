@@ -43,55 +43,106 @@ const CartProvider: React.FC = ({ children }) => {
     }
   }, [products.length]);
 
-  useEffect(() => {
-    let newProducts = [...products];
-    if (newProducts.some(x => x.quantity === 0)) {
-      newProducts = newProducts.filter(x => x.quantity > 0);
+  // useEffect(() => {
+  //   let newProducts = [...products];
+  //   if (newProducts.some(x => x.quantity === 0)) {
+  //     newProducts = newProducts.filter(x => x.quantity > 0);
+  //     setProducts(newProducts);
+  //   }
+
+  //   AsyncStorage.setItem(
+  //     '@GoMarketPlace:products',
+  //     JSON.stringify(newProducts),
+  //   );
+  // }, [products]);
+
+  const addToCart = useCallback(
+    async (product: Product) => {
+      const newProducts = products.some(x => x.id === product.id)
+        ? products.map(currentProduct => {
+            if (currentProduct.id === product.id) {
+              currentProduct.quantity += 1;
+            }
+            return currentProduct;
+          })
+        : [...products, { ...product, quantity: 1 }];
+
+      await AsyncStorage.setItem(
+        '@GoMarketPlace:products',
+        JSON.stringify(newProducts),
+      );
+
       setProducts(newProducts);
-    }
 
-    AsyncStorage.setItem(
-      '@GoMarketPlace:products',
-      JSON.stringify(newProducts),
-    );
-  }, [products]);
+      // setProducts(currentProducts => {
+      //   if (currentProducts.some(x => x.id === product.id)) {
+      //     const newProducts = currentProducts.map(currentProduct => {
+      //       if (currentProduct.id === product.id) {
+      //         currentProduct.quantity += 1;
+      //       }
+      //       return currentProduct;
+      //     });
+      //     return newProducts;
+      //   }
+      //   return [...currentProducts, { ...product, quantity: 1 }];
+      // });
+    },
+    [products],
+  );
 
-  const addToCart = useCallback(async (product: Product) => {
-    setProducts(currentProducts => {
-      if (currentProducts.some(x => x.id === product.id)) {
-        return currentProducts.map(currentProduct => {
-          if (currentProduct.id === product.id) {
-            currentProduct.quantity += 1;
-          }
-          return currentProduct;
-        });
-      }
-
-      return [...currentProducts, { ...product, quantity: 1 }];
-    });
-  }, []);
-
-  const increment = useCallback(async id => {
-    setProducts(currentProducts =>
-      currentProducts.map(currentProduct => {
+  const increment = useCallback(
+    async id => {
+      const newProducts = products.map(currentProduct => {
         if (currentProduct.id === id) {
           currentProduct.quantity += 1;
         }
         return currentProduct;
-      }),
-    );
-  }, []);
+      });
 
-  const decrement = useCallback(async id => {
-    setProducts(currentProducts =>
-      currentProducts.map(currentProduct => {
+      await AsyncStorage.setItem(
+        '@GoMarketPlace:products',
+        JSON.stringify(newProducts),
+      );
+
+      setProducts(newProducts);
+      // setProducts(currentProducts =>
+      //   currentProducts.map(currentProduct => {
+      //     if (currentProduct.id === id) {
+      //       currentProduct.quantity += 1;
+      //     }
+      //     return currentProduct;
+      //   }),
+      // );
+    },
+    [products],
+  );
+
+  const decrement = useCallback(
+    async id => {
+      const newProducts = products.map(currentProduct => {
         if (currentProduct.id === id && currentProduct.quantity) {
           currentProduct.quantity -= 1;
         }
         return currentProduct;
-      }),
-    );
-  }, []);
+      });
+
+      await AsyncStorage.setItem(
+        '@GoMarketPlace:products',
+        JSON.stringify(newProducts),
+      );
+
+      setProducts(newProducts);
+      // setProducts(currentProducts =>
+      //   currentProducts.map(currentProduct => {
+      //     if (currentProduct.id === id && currentProduct.quantity) {
+      //       currentProduct.quantity -= 1;
+      //     }
+      //     return currentProduct;
+      //   }),
+      // );
+    },
+    [products],
+  );
 
   const value = React.useMemo(
     () => ({ addToCart, increment, decrement, products }),

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
 import { View } from 'react-native';
@@ -18,9 +18,10 @@ import {
   ProductQuantity,
   ActionContainer,
   ActionButton,
+  TotalProductsContainer,
+  TotalProductsText,
+  SubtotalValue,
 } from './styles';
-
-import FloatingCart from '../../components/FloatingCart';
 
 import { useCart } from '../../hooks/cart';
 
@@ -36,6 +37,27 @@ const Cart: React.FC = () => {
   function handleDecrement(id: string): void {
     decrement(id);
   }
+
+  const cartTotal = useMemo(() => {
+    const total = products.length
+      ? products.reduce(
+          (totalPrice, currentProduct) =>
+            totalPrice + currentProduct.quantity * currentProduct.price,
+          0,
+        )
+      : 0;
+
+    return formatValue(total);
+  }, [products]);
+
+  const totalItensInCart = useMemo(() => {
+    return products.length
+      ? products.reduce(
+          (totalItens, currentProduct) => totalItens + currentProduct.quantity,
+          0,
+        )
+      : 0;
+  }, [products]);
 
   return (
     <Container>
@@ -84,7 +106,11 @@ const Cart: React.FC = () => {
           )}
         />
       </ProductContainer>
-      <FloatingCart />
+      <TotalProductsContainer>
+        <FeatherIcon name="shopping-cart" color="#fff" size={24} />
+        <TotalProductsText>{`${totalItensInCart} itens`}</TotalProductsText>
+        <SubtotalValue>{cartTotal}</SubtotalValue>
+      </TotalProductsContainer>
     </Container>
   );
 };

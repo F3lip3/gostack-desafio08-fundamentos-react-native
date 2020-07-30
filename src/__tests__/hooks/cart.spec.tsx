@@ -36,7 +36,6 @@ const TestComponent: React.FC = () => {
       title: 'Test product',
       image_url: 'test',
       price: 1000,
-      quantity: 0,
     });
   }
 
@@ -147,7 +146,7 @@ describe('Cart Context', () => {
               title: 'Test product',
               image_url: 'test',
               price: 1000,
-              quantity: 0,
+              quantity: 1,
             },
           ]),
         ),
